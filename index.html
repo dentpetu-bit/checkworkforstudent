@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#2563eb" />
+  <title>ตรวจสอบคะแนนนักเรียน | Kru Dew</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./styles.css?v=1" />
+</head>
+<body>
+  <div class="bg bg-one"></div>
+  <div class="bg bg-two"></div>
+
+  <main class="shell">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark">KD</div>
+        <div>
+          <strong>Student Score</strong>
+          <span>ระบบตรวจสอบคะแนนนักเรียน</span>
+        </div>
+      </div>
+      <div id="connectionStatus" class="connection" aria-live="polite">
+        <span class="dot"></span>
+        <span>กำลังเชื่อมต่อ</span>
+      </div>
+    </header>
+
+    <section id="lookupView" class="lookup-view">
+      <div class="welcome-card">
+        <div class="welcome-icon" aria-hidden="true">✓</div>
+        <p class="eyebrow">KRU DEW · SCORE CHECK</p>
+        <h1>ตรวจสอบคะแนนของฉัน</h1>
+        <p class="lead">กรอกรหัสนักเรียนเพื่อดูคะแนนชิ้นงานก่อนกลางภาคและหลังกลางภาค</p>
+
+        <form id="lookupForm" class="lookup-form" autocomplete="off">
+          <label for="studentCode">รหัสนักเรียน</label>
+          <div class="input-row">
+            <input
+              id="studentCode"
+              name="studentCode"
+              type="text"
+              inputmode="numeric"
+              autocomplete="off"
+              placeholder="กรอกรหัสนักเรียน"
+              maxlength="30"
+              required
+              autofocus
+            />
+            <button id="lookupBtn" type="submit">
+              <span class="btn-text">ตรวจสอบคะแนน</span>
+              <span class="spinner" aria-hidden="true"></span>
+            </button>
+          </div>
+          <p class="form-note">กรอกรหัสให้ตรงกับรหัสนักเรียนในระบบ</p>
+        </form>
+
+        <div id="lookupError" class="alert" role="alert" hidden></div>
+      </div>
+    </section>
+
+    <section id="resultView" class="result-view" hidden>
+      <div class="student-card">
+        <div class="student-avatar" id="studentInitial">นร</div>
+        <div class="student-info">
+          <span class="mini-label">ข้อมูลนักเรียน</span>
+          <h2 id="studentName">-</h2>
+          <div class="meta-row">
+            <span id="studentRoom">ห้อง -</span>
+            <span id="studentNumber">เลขที่ -</span>
+            <span id="studentCodeLabel">รหัส -</span>
+          </div>
+        </div>
+        <button id="changeStudentBtn" class="outline-btn" type="button">ตรวจสอบคนอื่น</button>
+      </div>
+
+      <div class="period-tabs" role="tablist" aria-label="เลือกช่วงคะแนน">
+        <button class="period-tab active" type="button" data-period="pre" role="tab" aria-selected="true">
+          <span class="tab-icon">1</span>
+          <span><b>ก่อนกลางภาค</b><small id="preCount">0 ชิ้นงาน</small></span>
+        </button>
+        <button class="period-tab" type="button" data-period="post" role="tab" aria-selected="false">
+          <span class="tab-icon">2</span>
+          <span><b>หลังกลางภาค</b><small id="postCount">0 ชิ้นงาน</small></span>
+        </button>
+      </div>
+
+      <div class="summary-grid">
+        <article class="summary-card">
+          <span>คะแนนที่บันทึกแล้ว</span>
+          <strong id="summaryGot">0</strong>
+          <small id="summaryGotSub">จากงานที่มีคะแนน</small>
+        </article>
+        <article class="summary-card">
+          <span>คะแนนเต็มรวม</span>
+          <strong id="summaryMax">0</strong>
+          <small id="summaryMaxSub">0 ชิ้นงาน</small>
+        </article>
+        <article class="summary-card">
+          <span>บันทึกแล้ว</span>
+          <strong id="summaryRecorded">0/0</strong>
+          <small>ชิ้นงาน</small>
+        </article>
+      </div>
+
+      <section class="score-panel">
+        <div class="panel-head">
+          <div>
+            <p class="eyebrow">ASSIGNMENT SCORES</p>
+            <h3 id="periodTitle">คะแนนก่อนกลางภาค</h3>
+          </div>
+          <span id="updatedLabel" class="updated-label">ข้อมูลล่าสุดจากระบบ</span>
+        </div>
+
+        <div id="scoreList" class="score-list"></div>
+        <div id="emptyScores" class="empty-box" hidden>
+          <div class="empty-icon">—</div>
+          <h4>ยังไม่มีชิ้นงานในช่วงนี้</h4>
+          <p>เมื่อครูเพิ่มชิ้นงาน รายการจะแสดงที่นี่อัตโนมัติ</p>
+        </div>
+      </section>
+
+      <p class="privacy-note">แสดงข้อมูลจากรหัสนักเรียนที่ค้นหาเท่านั้น · หากพบข้อมูลไม่ถูกต้อง กรุณาติดต่อครูผู้สอน</p>
+    </section>
+  </main>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./config.js?v=1"></script>
+  <script src="./app.js?v=1"></script>
+</body>
+</html>
