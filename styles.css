@@ -198,3 +198,20 @@ button { -webkit-tap-highlight-color: transparent; }
   .period-tab { align-items: flex-start; }
   .tab-icon { display: none; }
 }
+
+/* Five-category score checker */
+.period-tabs{grid-template-columns:repeat(4,minmax(0,1fr))}
+.period-tab{min-width:0;padding:13px 10px;gap:8px}.period-tab b{font-size:13px}.period-tab small{font-size:10px}
+.period-tab:nth-child(3).active{background:#f0fdf4;border-color:#86efac}.period-tab:nth-child(3).active .tab-icon{background:#059669}
+.period-tab:nth-child(4).active{background:#fffbeb;border-color:#fcd34d}.period-tab:nth-child(4).active .tab-icon{background:#d97706}
+.period-tab:nth-child(5).active{background:#ecfeff;border-color:#67e8f9}.period-tab:nth-child(5).active .tab-icon{background:#0891b2}
+.attendance-tab{grid-column:1/-1}.attendance-tab .tab-icon{font-size:20px}
+.attendance-summary-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:9px;margin-bottom:18px}
+.attendance-stat{padding:13px 8px;border:1px solid var(--line);border-radius:15px;text-align:center;background:#fff}
+.attendance-stat strong{display:block;font-size:25px}.attendance-stat span{font-size:12px;color:var(--muted);font-weight:700}
+.attendance-stat.present strong{color:#059669}.attendance-stat.late strong{color:#d97706}.attendance-stat.leave strong{color:#2563eb}.attendance-stat.absent strong{color:#dc2626}
+.attendance-note{font-size:12px;color:var(--muted);line-height:1.7}.attendance-date{font-weight:800}.attendance-chip{display:inline-block;border-radius:999px;padding:5px 11px;font-size:12px;font-weight:800}
+.attendance-chip.present{color:#047857;background:#d1fae5}.attendance-chip.late{color:#92400e;background:#fef3c7}.attendance-chip.leave{color:#1d4ed8;background:#dbeafe}.attendance-chip.absent{color:#b91c1c;background:#fee2e2}
+.attendance-item{display:flex;align-items:center;justify-content:space-between;gap:10px;border:1px solid var(--line);border-radius:15px;padding:12px 16px;background:#fff}
+@media(max-width:720px){.period-tabs{grid-template-columns:repeat(2,minmax(0,1fr))}.period-tab{padding:12px}.attendance-summary-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:390px){.period-tab .tab-icon{display:grid}.attendance-summary-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}

@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="./styles.css?v=1" />
+  <link rel="stylesheet" href="./styles.css?v=2" />
 </head>
 <body>
   <div class="bg bg-one"></div>
@@ -34,7 +34,7 @@
         <div class="welcome-icon" aria-hidden="true">✓</div>
         <p class="eyebrow">KRU DEW · SCORE CHECK</p>
         <h1>ตรวจสอบคะแนนของฉัน</h1>
-        <p class="lead">กรอกรหัสนักเรียนเพื่อดูคะแนนชิ้นงานก่อนกลางภาคและหลังกลางภาค</p>
+        <p class="lead">กรอกรหัสนักเรียนเพื่อดูคะแนนทั้ง 4 ช่วง และข้อมูลเวลาเข้าเรียน</p>
 
         <form id="lookupForm" class="lookup-form" autocomplete="off">
           <label for="studentCode">รหัสนักเรียน</label>
@@ -77,18 +77,15 @@
         <button id="changeStudentBtn" class="outline-btn" type="button">ตรวจสอบคนอื่น</button>
       </div>
 
-      <div class="period-tabs" role="tablist" aria-label="เลือกช่วงคะแนน">
-        <button class="period-tab active" type="button" data-period="pre" role="tab" aria-selected="true">
-          <span class="tab-icon">1</span>
-          <span><b>ก่อนกลางภาค</b><small id="preCount">0 ชิ้นงาน</small></span>
-        </button>
-        <button class="period-tab" type="button" data-period="post" role="tab" aria-selected="false">
-          <span class="tab-icon">2</span>
-          <span><b>หลังกลางภาค</b><small id="postCount">0 ชิ้นงาน</small></span>
-        </button>
+      <div class="period-tabs" role="tablist" aria-label="เลือกหมวดข้อมูล">
+        <button class="period-tab active" type="button" data-period="pre" role="tab" aria-selected="true"><span class="tab-icon">1</span><span><b>ก่อนกลางภาค</b><small id="preCount">0 ชิ้นงาน</small></span></button>
+        <button class="period-tab" type="button" data-period="mid" role="tab" aria-selected="false"><span class="tab-icon">2</span><span><b>กลางภาค</b><small id="midCount">0 ชิ้นงาน</small></span></button>
+        <button class="period-tab" type="button" data-period="post" role="tab" aria-selected="false"><span class="tab-icon">3</span><span><b>หลังกลางภาค</b><small id="postCount">0 ชิ้นงาน</small></span></button>
+        <button class="period-tab" type="button" data-period="final" role="tab" aria-selected="false"><span class="tab-icon">4</span><span><b>ปลายภาค</b><small id="finalCount">0 ชิ้นงาน</small></span></button>
+        <button class="period-tab attendance-tab" type="button" data-period="attendance" role="tab" aria-selected="false"><span class="tab-icon">✓</span><span><b>เวลาเข้าเรียน</b><small id="attendanceCount">0 วัน</small></span></button>
       </div>
 
-      <div class="summary-grid">
+      <div id="scoreSummary" class="summary-grid">
         <article class="summary-card">
           <span>คะแนนที่บันทึกแล้ว</span>
           <strong id="summaryGot">0</strong>
@@ -106,7 +103,7 @@
         </article>
       </div>
 
-      <section class="score-panel">
+      <section id="scorePanel" class="score-panel">
         <div class="panel-head">
           <div>
             <p class="eyebrow">ASSIGNMENT SCORES</p>
@@ -123,6 +120,13 @@
         </div>
       </section>
 
+      <section id="attendancePanel" class="score-panel" hidden>
+        <div class="panel-head"><div><p class="eyebrow">ATTENDANCE</p><h3>เวลาเข้าเรียน</h3></div><span id="attendanceUpdated" class="updated-label">ข้อมูลจากระบบ</span></div>
+        <div id="attendanceSummary" class="attendance-summary-grid"></div>
+        <p class="attendance-note">แสดงวันที่มีรายการเช็คชื่อในห้องเรียน หากวันดังกล่าวไม่มีรายการของนักเรียน ระบบถือว่า “ขาด” ตามรายงานเว็บหลัก</p>
+        <div id="attendanceList" class="score-list"></div>
+        <div id="attendanceEmpty" class="empty-box" hidden><div class="empty-icon">—</div><h4>ยังไม่มีข้อมูลเวลาเรียน</h4><p>เมื่อครูเริ่มบันทึกเวลาเรียน ข้อมูลจะปรากฏที่นี่</p></div>
+      </section>
       <p class="privacy-note">แสดงข้อมูลจากรหัสนักเรียนที่ค้นหาเท่านั้น · หากพบข้อมูลไม่ถูกต้อง กรุณาติดต่อครูผู้สอน</p>
     </section>
   </main>
@@ -131,6 +135,6 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="./config.js?v=1"></script>
-  <script src="./app.js?v=1"></script>
+  <script src="./app.js?v=2"></script>
 </body>
 </html>

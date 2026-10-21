@@ -9,6 +9,9 @@
   let currentPeriod = 'pre';
   let assignments = [];
   let scoreMap = new Map();
+  let attendanceRecords = [];
+  let attendanceDates = [];
+  const PERIOD_LABELS = {pre:"ก่อนกลางภาค",mid:"กลางภาค",post:"หลังกลางภาค",final:"ปลายภาค",attendance:"เวลาเข้าเรียน"};
 
   function escapeHtml(value) {
     return String(value ?? '').replace(/[&<>"']/g, (char) => ({
@@ -125,7 +128,7 @@
     try {
       const { data: student, error: studentError } = await supabaseClient
         .from('students')
-        .select('id,student_code,prefix,full_name,room,number')
+        .select('id,student_code,prefix,full_name,room,number,is_nonexistent')
         .eq('student_code', code)
         .maybeSingle();
 
@@ -150,6 +153,18 @@
 
       if (scoreError) throw scoreError;
 
+      const roomAttendance = [];
+      for (let offset = 0; ; offset += 1000) {
+        const {data: page, error: attendanceError} = await supabaseClient
+          .from('attendance').select('attendance_date,student_id,status,checked_at')
+          .eq('room', student.room).order('attendance_date', {ascending:false})
+          .order('id', {ascending:true}).range(offset,offset+999);
+        if (attendanceError) throw attendanceError;
+        roomAttendance.push(...(page || []));
+        if (!page || page.length < 1000) break;
+      }
+      attendanceDates = [...new Set(roomAttendance.map(r => r.attendance_date).filter(Boolean))].sort().reverse();
+      attendanceRecords = roomAttendance.filter(r => r.student_id === student.id);
       currentStudent = student;
       assignments = roomAssignments || [];
       scoreMap = new Map((scores || []).map((row) => [row.assignment_id, row]));
@@ -188,10 +203,12 @@
     const post = assignments.filter((a) => (a.period || 'pre') === 'post').length;
     $('preCount').textContent = `${pre} ชิ้นงาน`;
     $('postCount').textContent = `${post} ชิ้นงาน`;
+    for (const period of ['mid','final']) $(period+'Count').textContent = `${assignments.filter(a => (a.period || 'pre') === period).length} ชิ้นงาน`;
+    $('attendanceCount').textContent = `${attendanceDates.length} วัน`;
   }
 
   function setPeriod(period) {
-    currentPeriod = period === 'post' ? 'post' : 'pre';
+    currentPeriod = Object.prototype.hasOwnProperty.call(PERIOD_LABELS,period) ? period : 'pre';
 
     document.querySelectorAll('.period-tab').forEach((button) => {
       const active = button.dataset.period === currentPeriod;
@@ -199,10 +216,12 @@
       button.setAttribute('aria-selected', active ? 'true' : 'false');
     });
 
-    $('periodTitle').textContent = currentPeriod === 'post'
-      ? 'คะแนนหลังกลางภาค'
-      : 'คะแนนก่อนกลางภาค';
-
+    const isAttendance = currentPeriod === 'attendance';
+    $('scoreSummary').hidden = isAttendance;
+    $('scorePanel').hidden = isAttendance;
+    $('attendancePanel').hidden = !isAttendance;
+    if (isAttendance) { renderAttendance(); return; }
+    $('periodTitle').textContent = `คะแนน${PERIOD_LABELS[currentPeriod]}`;
     renderScores();
   }
 
@@ -270,6 +289,29 @@
     }
   }
 
+  function renderAttendance() {
+    const labels = {present:'มา',late:'สาย',leave:'ลา',absent:'ขาด'};
+    const byDate = new Map(attendanceRecords.map(r => [r.attendance_date, r]));
+    const counts = {present:0,late:0,leave:0,absent:0};
+    const entries = attendanceDates.map(date => {
+      const row = byDate.get(date);
+      const status = row && Object.prototype.hasOwnProperty.call(labels,row.status) ? row.status : 'absent';
+      counts[status]++;
+      return {date,status,checked_at:row?.checked_at};
+    });
+    $('attendanceSummary').innerHTML = [
+      ['รวมวัน',entries.length,'total'],['มา',counts.present,'present'],['สาย',counts.late,'late'],
+      ['ลา',counts.leave,'leave'],['ขาด',counts.absent,'absent']
+    ].map(([name,n,cls]) => `<div class="attendance-stat ${cls}"><strong>${n}</strong><span>${name}</span></div>`).join('');
+    $('attendanceEmpty').hidden = !!entries.length;
+    $('attendanceUpdated').textContent = `บันทึก ${entries.length} วัน`;
+    $('attendanceList').innerHTML = entries.map(({date,status,checked_at}) => {
+      const labelDate = new Date(`${date}T12:00:00`).toLocaleDateString('th-TH',{day:'numeric',month:'short',year:'numeric'});
+      const time = checked_at && status !== 'absent' ? new Date(checked_at).toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'}) : '';
+      return `<article class="attendance-item"><div><div class="attendance-date">${escapeHtml(labelDate)}</div>${time ? `<small>เช็คอิน ${escapeHtml(time)} น.</small>` : ''}</div><span class="attendance-chip ${status}">${labels[status]}</span></article>`;
+    }).join('');
+  }
+
   function updateSummary(list) {
     let got = 0;
     let max = 0;
@@ -297,6 +339,7 @@
     currentStudent = null;
     assignments = [];
     scoreMap = new Map();
+    attendanceDates = []; attendanceRecords = [];
     currentPeriod = 'pre';
 
     $('resultView').hidden = true;
